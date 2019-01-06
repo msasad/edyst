@@ -40,3 +40,26 @@ class Results(Resource):
         return response
 
 api.add_resource(Results, '/api/results')
+
+
+class LeaderboardAll(Resource):
+    def get(self):
+        pass
+
+
+class LeaderboardUser(Resource):
+    def get(self, username):
+        print(username)
+        session = db.Session()
+        rows = db.User.get_user_details(session, username)
+        payload = []
+        for row in rows:
+            entry = {}
+            entry['username'] = row.User.username
+            entry['total_points'] = row.User.score
+            entry['streak'] = row.User.streak
+            entry['rank'] = row.rank
+            payload.append(entry)
+        return Response(json.dumps(payload), mimetype='application/json')
+
+api.add_resource(LeaderboardUser, '/api/leaderboard/<string:username>')

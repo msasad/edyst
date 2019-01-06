@@ -76,6 +76,8 @@ class User(Base):
         query = session.query(User).add_column(rank_col)
         user_row = query.from_self().filter(User.username==username).first()
         rank = user_row.rank
+        # TODO: Limit number of results to 2*offset + 1 if there are multiple
+        # users with same rank
         results = query.from_self().filter(rank_col>=rank-offset).\
             filter(rank_col<=rank+offset)
         return results.all()
