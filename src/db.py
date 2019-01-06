@@ -40,7 +40,7 @@ class User(Base):
         score = Score(username=self.username, score=points, date=date)
         session.add(score)
         self.score += points
-        self.update_streak()
+        self.update_streak(session)
         self.streak = 1 if self.streak == 0 else self.streak + 1
         session.flush()
         session.commit()
