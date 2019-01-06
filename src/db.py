@@ -31,6 +31,9 @@ class User(Base):
     def __str__(self):
         return '%s - %s - %s' % (self.username, self.score, self.streak)
 
+    def __repr__(self):
+        return '%s - %s - %s' % (self.username, self.score, self.streak)
+
     def add_score(self, session, points, date=None):
         import datetime
 
