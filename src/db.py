@@ -40,16 +40,18 @@ class User(Base):
         score = Score(username=self.username, score=points, date=date)
         session.add(score)
         self.score += points
-        self.update_streak(session)
+        self.update_streak(session, date)
         self.streak = 1 if self.streak == 0 else self.streak + 1
         session.flush()
         session.commit()
 
-    def update_streak(self, session):
+    def update_streak(self, session, date=None):
         import datetime
-        last_score = session.query(Score).filter_by(username='foo').\
+        if date is None:
+            date = datetime.date.today()
+        last_score = session.query(Score).filter_by(username=self.username).\
             order_by(Score.date.desc()).first()
-        if last_score.date < datetime.date.today() - datetime.timedelta(days=1):
+        if last_score.date < date - datetime.timedelta(days=1):
             self.streak = 0
 
     @staticmethod

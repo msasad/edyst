@@ -22,7 +22,8 @@ class Results(Resource):
             assert type(data['username']) == str
             assert int(data['points']) > 0
             date = datetime.date.fromisoformat(data['date'])
-            assert date <= datetime.date.today()
+            # Allowing future dates to test the 'streak' calculation
+            # assert date <= datetime.date.today()
         except:
             abort(400)
         try:
@@ -32,7 +33,7 @@ class Results(Resource):
             if user is None:
                 abort(400)
             else:
-                user.add_score(session, data['points'], data['date'])
+                user.add_score(session, data['points'], date)
         except:
             abort(500)
         response = Response(status=201)
