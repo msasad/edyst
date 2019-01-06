@@ -1,10 +1,20 @@
 from sqlalchemy import Integer, Column, String, create_engine, Date, ForeignKey
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import json
 
 
-#TODO Move out db connection parameters to a config file
-engine = create_engine('postgresql+psycopg2://sid:password@127.0.0.1:5433/leaderboard')
+dbconfig = json.load(open('config.json'))['database']
+
+database_url = 'postgresql+psycopg2://%s:%s@%s:%s/%s' % (
+    dbconfig.get('username'),
+    dbconfig.get('password'),
+    dbconfig.get('host', '127.0.0.1'),
+    dbconfig.get('port', 5432),
+    dbconfig.get('name', 'leaderboard')
+)
+
+engine = create_engine(database_url)
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
