@@ -17,6 +17,10 @@ class User(Base):
     score = Column(Integer, default=0)
     streak = Column(Integer, default=0)
 
+
+    def __str__(self):
+        return '%s - %s - %s' % (self.username, self.score, self.streak)
+
     def add_score(self, session, points, date=None):
         import datetime
 
@@ -52,12 +56,20 @@ class User(Base):
         from sqlalchemy import func
         rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
         query = session.query(User).add_column(rank_col)
-        results = query.from_self().filter(rank_col==rank)
+        results = query.from_self().filter(rank_col==rank).all()
         return results
 
     @staticmethod
-    def get_user_details(session, username):
-        pass
+    def get_user_details(session, username, offset=5):
+        # TODO: Handle the case when there are multiple users with same score
+        from sqlalchemy import func
+        rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
+        query = session.query(User).add_column(rank_col)
+        user_row = query.from_self().filter(User.username==username).first()
+        rank = user_row.rank
+        results = query.from_self().filter(rank_col>=rank-offset).\
+            filter(rank_col<=rank+offset)
+        return results.all()
 
 
 
