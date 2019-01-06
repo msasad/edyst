@@ -21,10 +21,20 @@ class Results(Resource):
         try:
             assert type(data['username']) == str
             assert int(data['points']) > 0
-            assert datetime.date.fromisoformat(data['date']) <= datetime.date.today()
+            date = datetime.date.fromisoformat(data['date'])
+            assert date <= datetime.date.today()
         except:
             abort(400)
+        try:
+            session = db.Session()
+            query = session.query(db.User).filter_by(username=data['username'])
+            user = query.first()
+            if user is None:
+                abort(400)
+            else:
+                user.add_score(session, data['points'], data['date'])
+        except:
+            abort(500)
         return dict(this='that')
 
 api.add_resource(Results, '/api/results')
-
