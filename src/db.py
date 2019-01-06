@@ -38,12 +38,26 @@ class User(Base):
         if last_score.date < datetime.date.today() - datetime.timedelta(days=1):
             self.streak = 0
 
-    def get_leaders(self, session):
+    @staticmethod
+    def get_leaders(session):
+        # TODO: Handle the case when there are multiple users with same score
         from sqlalchemy import func
         rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
         query = session.query(User).add_column(rank_col)
         results = query.all()
         return results
+
+    def get_user_by_rank(session, rank):
+        # TODO: Handle the case when there are multiple users with same score
+        from sqlalchemy import func
+        rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
+        query = session.query(User).add_column(rank_col)
+        results = query.from_self().filter(rank_col==rank)
+        return results
+
+    @staticmethod
+    def get_user_details(session, username):
+        pass
 
 
 
