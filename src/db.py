@@ -31,6 +31,9 @@ class User(Base):
     def __str__(self):
         return '%s - %s - %s' % (self.username, self.score, self.streak)
 
+    def __repr__(self):
+        return '%s - %s - %s' % (self.username, self.score, self.streak)
+
     def add_score(self, session, points, date=None):
         import datetime
 
@@ -55,11 +58,11 @@ class User(Base):
             self.streak = 0
 
     @staticmethod
-    def get_leaders(session):
+    def get_leaders(session, offset=0, limit=50):
         from sqlalchemy import func
         rank_col = func.rank().over(order_by=User.score.desc()).label('rank')
         query = session.query(User).add_column(rank_col)
-        results = query.all()
+        results = query.offset(offset).limit(limit).all()
         return results
 
     def get_user_by_rank(session, rank):
@@ -93,5 +96,8 @@ class Score(Base):
     date = Column(Date)
 
     def __str__(self):
+        return '%s - %s - %s' % (self.username, self.score, self.date)
+
+    def __repr__(self):
         return '%s - %s - %s' % (self.username, self.score, self.date)
 
