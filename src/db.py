@@ -17,7 +17,12 @@ class User(Base):
     score = Column(Integer, default=0)
     streak = Column(Integer, default=0)
 
-    def add_score(self, session, date, points):
+    def add_score(self, session, points, date=None):
+        import datetime
+
+        if date is None:
+            date = datetime.date.today()
+
         score = Score(username=self.username, score=points, date=date)
         session.add(score)
         self.score += points
@@ -27,11 +32,19 @@ class User(Base):
         session.commit()
 
     def update_streak(self, session):
-        from datetime import date, timedelta
+        import datetime
         last_score = session.query(Score).filter_by(username='foo').\
             order_by(Score.date.desc()).first()
-        if last_score.date < date.today() - timedelta(days=1):
+        if last_score.date < datetime.date.today() - datetime.timedelta(days=1):
             self.streak = 0
+
+    def get_leaders(self, session):
+        from sqlalchemy import func
+        rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
+        query = session.query(User).add_column(rank_col)
+        results = query.all()
+        return results
+
 
 
 class Score(Base):
