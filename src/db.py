@@ -44,26 +44,23 @@ class User(Base):
 
     @staticmethod
     def get_leaders(session):
-        # TODO: Handle the case when there are multiple users with same score
         from sqlalchemy import func
-        rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
+        rank_col = func.rank().over(order_by=User.score.desc()).label('rank')
         query = session.query(User).add_column(rank_col)
         results = query.all()
         return results
 
     def get_user_by_rank(session, rank):
-        # TODO: Handle the case when there are multiple users with same score
         from sqlalchemy import func
-        rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
+        rank_col = func.rank().over(order_by=User.score.desc()).label('rank')
         query = session.query(User).add_column(rank_col)
         results = query.from_self().filter(rank_col==rank).all()
         return results
 
     @staticmethod
     def get_user_details(session, username, offset=5):
-        # TODO: Handle the case when there are multiple users with same score
         from sqlalchemy import func
-        rank_col = func.row_number().over(order_by=User.score.desc()).label('rank')
+        rank_col = func.rank().over(order_by=User.score.desc()).label('rank')
         query = session.query(User).add_column(rank_col)
         user_row = query.from_self().filter(User.username==username).first()
         rank = user_row.rank
