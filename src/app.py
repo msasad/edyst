@@ -62,9 +62,13 @@ api.add_resource(LeaderboardAll, '/api/leaderboard/all/',
 
 
 class LeaderboardUser(Resource):
-    def get(self, username):
+    def get(self, param):
         session = db.Session()
-        rows = db.User.get_user_details(session, username)
+        try:
+            param = int(param)
+            rows = db.User.get_user_by_rank(session, param)
+        except ValueError:
+            rows = db.User.get_user_details(session, param)
         payload = []
         for row in rows:
             entry = {}
@@ -75,4 +79,4 @@ class LeaderboardUser(Resource):
             payload.append(entry)
         return Response(json.dumps(payload), mimetype='application/json')
 
-api.add_resource(LeaderboardUser, '/api/leaderboard/<string:username>')
+api.add_resource(LeaderboardUser, '/api/leaderboard/<param>')
