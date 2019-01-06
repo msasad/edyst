@@ -1,5 +1,5 @@
 import db
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask_restful import Resource, Api, abort
 import json
 import datetime
@@ -35,6 +35,7 @@ class Results(Resource):
                 user.add_score(session, data['points'], data['date'])
         except:
             abort(500)
-        return dict(this='that')
+        response = Response(status=201)
+        return response
 
 api.add_resource(Results, '/api/results')
