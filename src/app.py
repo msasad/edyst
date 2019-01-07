@@ -95,6 +95,7 @@ api.add_resource(LeaderboardUser, '/api/leaderboard/<param>')
 @click.argument('userfilename')
 @click.argument('scoresfilename')
 def loaddata(userfilename, scoresfilename):
+    db.Base.metadata.create_all(db.engine)
     session = db.Session()
     with open(userfilename) as infile:
         for line in infile:
