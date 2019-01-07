@@ -18,7 +18,7 @@ class Results(Resource):
             try:
                 data = json.loads(request.data)
             except:
-                abort(400)
+                abort(400, reason='Failed to parse data. Invalid JSON')
         try:
             assert type(data['username']) == str
             assert int(data['points']) > 0
@@ -26,13 +26,13 @@ class Results(Resource):
             # Allowing future dates to test the 'streak' calculation
             # assert date <= datetime.date.today()
         except:
-            abort(400)
+            abort(400, reason='Invalid values supplied.')
         try:
             session = db.Session()
             query = session.query(db.User).filter_by(username=data['username'])
             user = query.first()
             if user is None:
-                abort(400)
+                abort(400, reason='The specified user is not found')
             else:
                 user.add_score(session, data['points'], date)
         except:
@@ -73,7 +73,7 @@ class LeaderboardUser(Resource):
             try:
                 rows = db.User.get_user_details(session, param)
             except db.User.NotFound:
-                abort(404)
+                abort(404, reason='The specified user is not found')
         payload = []
         for row in rows:
             entry = {}
