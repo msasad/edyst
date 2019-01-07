@@ -28,6 +28,10 @@ class User(Base):
     streak = Column(Integer, default=0)
 
 
+    class NotFound(Exception):
+        pass
+
+
     def __str__(self):
         return '%s - %s - %s' % (self.username, self.score, self.streak)
 
@@ -76,12 +80,16 @@ class User(Base):
     def get_user_details(session, username, offset=5):
         from sqlalchemy import func
         row_col = func.row_number().over(order_by=User.score.desc()).label('row_number')
-        query = session.query(User).add_column(row_col)
+        rank_col = func.rank().over(order_by=User.score.desc()).label('rank')
+        query = session.query(User).add_column(row_col).add_column(rank_col)
         user_row = query.from_self().filter(User.username==username).first()
+        if user_row is None:
+            raise User.NotFound
         row_number = user_row.row_number
         results = query.from_self().filter(row_col>=row_number-offset).\
             filter(row_col<=row_number+offset)
         return results.all()
+
 
 
 

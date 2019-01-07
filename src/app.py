@@ -68,7 +68,10 @@ class LeaderboardUser(Resource):
             param = int(param)
             rows = db.User.get_user_by_rank(session, param)
         except ValueError:
-            rows = db.User.get_user_details(session, param)
+            try:
+                rows = db.User.get_user_details(session, param)
+            except db.User.NotFound:
+                abort(404)
         payload = []
         for row in rows:
             entry = {}
