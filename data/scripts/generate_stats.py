@@ -3,7 +3,6 @@ import datetime
 def main():
     with open('scores.csv') as infile:
         data = {}
-        header = infile.readline()
         for line in infile:
             user, score, date = line.split(', ')
             year, month, day = map(int, date.split('-'))
