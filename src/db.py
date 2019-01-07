@@ -75,14 +75,12 @@ class User(Base):
     @staticmethod
     def get_user_details(session, username, offset=5):
         from sqlalchemy import func
-        rank_col = func.rank().over(order_by=User.score.desc()).label('rank')
-        query = session.query(User).add_column(rank_col)
+        row_col = func.row_number().over(order_by=User.score.desc()).label('row_number')
+        query = session.query(User).add_column(row_col)
         user_row = query.from_self().filter(User.username==username).first()
-        rank = user_row.rank
-        # TODO: Limit number of results to 2*offset + 1 if there are multiple
-        # users with same rank
-        results = query.from_self().filter(rank_col>=rank-offset).\
-            filter(rank_col<=rank+offset)
+        row_number = user_row.row_number
+        results = query.from_self().filter(row_col>=row_number-offset).\
+            filter(row_col<=row_number+offset)
         return results.all()
 
 
