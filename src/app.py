@@ -3,6 +3,7 @@ from flask import Flask, request, Response
 from flask_restful import Resource, Api, abort
 import json
 import datetime
+import click
 
 app = Flask(__name__)
 api = Api(app)
@@ -85,3 +86,31 @@ class LeaderboardUser(Resource):
         return Response(json.dumps(payload), mimetype='application/json')
 
 api.add_resource(LeaderboardUser, '/api/leaderboard/<param>')
+
+
+# CLI Implementation
+
+
+@app.cli.command()
+@click.argument('userfilename')
+@click.argument('scoresfilename')
+def loaddata(userfilename, scoresfilename):
+    session = db.Session()
+    with open(userfilename) as infile:
+        for line in infile:
+            username, score, streak = line.split(', ')
+            score = int(score)
+            streak = int(streak)
+            user = db.User(username=username, score=score, streak=streak)
+            session.add(user)
+    session.flush()
+    session.commit()
+
+    with open(scoresfilename) as infile:
+        for line in infile:
+            username, score, date = line.split(', ')
+            score = int(score)
+            score_obj = db.Score(username=username, score=score, date=date)
+            session.add(score_obj)
+    session.flush()
+    session.commit()
