@@ -49,6 +49,7 @@ class LeaderboardAll(Resource):
         rows = db.User.get_leaders(session, offset, perpage)
         payload = []
         for row in rows:
+            row.User.update_streak(session)
             entry = {}
             entry['username'] = row.User.username
             entry['total_points'] = row.User.score
@@ -75,6 +76,7 @@ class LeaderboardUser(Resource):
         payload = []
         for row in rows:
             entry = {}
+            row.User.update_streak(session)
             entry['username'] = row.User.username
             entry['total_points'] = row.User.score
             entry['streak'] = row.User.streak
