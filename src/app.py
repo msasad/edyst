@@ -22,9 +22,9 @@ class Results(Resource):
         try:
             assert type(data['username']) == str
             assert int(data['points']) > 0
-            date = datetime.date.fromisoformat(data['date'])
+            date = datetime.datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%S.%f')
             # Allowing future dates to test the 'streak' calculation
-            # assert date <= datetime.date.today()
+            # assert date <= datetime.datetime.now()
         except:
             abort(400, reason='Invalid values supplied.')
         try:

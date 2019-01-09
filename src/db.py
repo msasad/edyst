@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, String, create_engine, Date, ForeignKey
+from sqlalchemy import Integer, Column, String, create_engine, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import json
@@ -42,12 +42,12 @@ class User(Base):
         import datetime
 
         if date is None:
-            date = datetime.date.today()
+            date = datetime.datetime.now()
 
+        self.update_streak(session, date)
         score = Score(username=self.username, score=points, date=date)
         session.add(score)
         self.score += points
-        self.update_streak(session, date)
         self.streak = 1 if self.streak == 0 else self.streak + 1
         session.flush()
         session.commit()
@@ -55,11 +55,19 @@ class User(Base):
     def update_streak(self, session, date=None):
         import datetime
         if date is None:
-            date = datetime.date.today()
+            date = datetime.datetime.now()
         last_score = session.query(Score).filter_by(username=self.username).\
             order_by(Score.date.desc()).first()
-        if last_score.date < date - datetime.timedelta(days=1):
+
+
+        if last_score is None:
             self.streak = 0
+        else:
+            gap = date.date() - last_score.date.date()
+            if gap.days == 0:
+                self.streak -= 1
+            elif gap.days > 1:
+                self.streak = 0
 
     @staticmethod
     def get_leaders(session, offset=0, limit=50):
@@ -105,7 +113,7 @@ class Score(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, ForeignKey('users.username'))
     score = Column(Integer)
-    date = Column(Date)
+    date = Column(DateTime)
 
     def __str__(self):
         return '%s - %s - %s' % (self.username, self.score, self.date)
