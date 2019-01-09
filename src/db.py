@@ -90,7 +90,13 @@ class User(Base):
             filter(row_col<=row_number+offset)
         return results.all()
 
-
+    @staticmethod
+    def create(session, username):
+        user = User(username=username, score=0, streak=0)
+        session.add(user)
+        session.flush()
+        session.commit()
+        return user
 
 
 class Score(Base):

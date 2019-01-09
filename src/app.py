@@ -32,9 +32,8 @@ class Results(Resource):
             query = session.query(db.User).filter_by(username=data['username'])
             user = query.first()
             if user is None:
-                abort(400, reason='The specified user is not found')
-            else:
-                user.add_score(session, data['points'], date)
+                user = db.User.create(session, username=data['username'])
+            user.add_score(session, data['points'], date)
         except:
             abort(500)
         response = Response(status=201)
