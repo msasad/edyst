@@ -91,6 +91,14 @@ api.add_resource(LeaderboardUser, '/api/leaderboard/<param>')
 
 
 @app.cli.command()
+def initdb():
+    try:
+        db.Base.metadata.create_all(db.engine)
+    except:
+        print('Failed to create tables, please check the database' +
+        'configuration and try again')
+
+@app.cli.command()
 @click.argument('userfilename')
 @click.argument('scoresfilename')
 def loaddata(userfilename, scoresfilename):
