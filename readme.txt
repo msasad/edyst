@@ -1,6 +1,6 @@
 LeaderBoard API
 
-Author: Asad Siddiqui (msasad8@gmail.com)
+Author: Asad Siddiqui
 
 
 DEPENDENCIES:
